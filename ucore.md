@@ -37,7 +37,7 @@
 2.最后两个字节为`0x55、0xAA`，*这应该是一个标志，为什么是他们我也不明白
 *
 
-###练习二 使用qemu执行并调试lab1中的软件
+### 练习二 使用qemu执行并调试lab1中的软件
 >问题一：从CPU加电后执行的第一条指令开始，单步跟踪BIOS的执行。
 
 为了能够使用gdb在qemu里调试，首先将文件`tools/gdbinit`的内容修改为：
@@ -84,7 +84,7 @@
 
 还是修改`tools/gdbinit`文件，在其中添加断点break kern_init，在进行刚才的过程，测试断点正常
 
-###练习三 分析bootloader进入保护模式的过程
+### 练习三 分析bootloader进入保护模式的过程
 >问题一：为何开启A20，以及如何开启A20
 
 在实模式下, 我们可以访问超过1MB的空间，但我们只希望访问1MB以内的内存空间，而不希望程序访问到1MB以外的空间，所以CPU中添加了一个可控制`A20`地址线的模块，通过这个模块，我们在实模式下将第`20bit`的地址线限制为`0`，这样CPU就不能访问超过`1MB`的空间了。进入保护模式后，我们再通过这个模块解除对A20地址线的限制，这样我们就能访问超过1MB的内存空间了。
@@ -152,7 +152,7 @@
     movl %eax, %cr0
 我们可以看到代码中只需将寄存器cr0的PE位置为1，即将cr0的内容与CRO_PE_ON这个数异或，就可以进入保护模式了
 
-###练习四 分析bootloader加载ELF格式的OS的过程
+### 练习四 分析bootloader加载ELF格式的OS的过程
 *要求：通过阅读bootmain.c，了解bootloader如何加载ELF文件。通过分析源代码和通过qemu来运行并调试bootloader&OS，理解：
 bootloader如何读取硬盘扇区的？
 bootloader是如何加载ELF格式的OS？*
@@ -230,7 +230,7 @@ bootmain.c中一开始定义了几个函数，通过函数名我们不难理解�
 1. 遍历Program Header表中的每个元素，得到每个Segment在文件中的偏移、要加载到内存中的位置（虚拟地址）及Segment的长度等信息，并通过磁盘I/O进行加载
 1. 最后加载完毕，通过ELF Header的e_entry得到内核的入口地址，并跳转到该地址开始执行内核代码
 
-###练习五 实现函数调用堆栈跟踪函数
+### 练习五 实现函数调用堆栈跟踪函数
 >问题一：我们需要在lab1中完成kdebug.c中函数`print_stackframe`的实现，可以通过函数`print_stackframe`来跟踪函数调用堆栈中记录的返回地址。如果能够正确实现此函数，可在lab1中执行 `“make qemu”`后，在`qemu`模拟器中得到类似如下的输出：
 
 题目中给了很多提示，我们可以根据提示去编程实现。
@@ -294,7 +294,7 @@ bootmain.c中一开始定义了几个函数，通过函数名我们不难理解�
 这里有一个问题。ebp和eip的值可以理解，这是函数kern_init的栈顶和返回地址，但最后一行的四个参数是哪里来的呢？bootmain函数调用kern_init没有传入参数啊
 我们注意，此时栈顶的位置恰好在boot loader第一条指令存放的地址的上面，而args恰好是kern_int的ebp寄存器指向的栈顶往上第2~5个单元，因此args存放的就是boot loader指令的前16个字节。
 
-###练习六 完善中断初始化和处理
+### 练习六 完善中断初始化和处理
 >问题一：中断描述符表（也可简称为保护模式下的中断向量表）中一个表项占多少字节？其中哪几位代表中断处理代码的入口？
 中断描述符表中一个表项占8个字节，结构为：
 
@@ -334,8 +334,8 @@ Notice: the argument of lidt is idt_pd. try to find it!*
 	}
 	lidt(&idt_pd);
 
->问题三：请编程完善trap.c中的中断处理函数trap，在对时钟中断进行处理的部分填写trap函数中处理时钟中断的部分，使操作系统每遇到100次时钟中断后，调用print_ticks子程序，向屏幕上打印一行文字”100 ticks”
-trap函数只是直接调用了trap_dispatch函数，而trap_dispatch函数实现对各种中断的处理，题目要求我们完成对时钟中断的处理，实现非常简单：定义一个全局变量ticks，每次时钟中断将ticks加1，加到100后打印"100 ticks"，然后将ticks清零重新计数。代码实现如下：
+>问题三：请编程完善trap.c中的中断处理函数trap，在对时钟中断进行处理的部分填写trap函数中处理时钟中断的部分，使操作系统每遇到100次时钟中断后，调用`print_ticks`子程序，向屏幕上打印一行文字”100 ticks”
+trap函数只是直接调用了`trap_dispatch`函数，而`trap_dispatch`函数实现对各种中断的处理，题目要求我们完成对时钟中断的处理，实现非常简单：定义一个全局变量ticks，每次时钟中断将ticks加1，加到100后打印"100 ticks"，然后将ticks清零重新计数。代码实现如下：
 
  	case IRQ_OFFSET + IRQ_TIMER:
         if (((++ticks) % TICK_NUM) == 0) {
@@ -345,12 +345,15 @@ trap函数只是直接调用了trap_dispatch函数，而trap_dispatch函数实�
 测试一下，如图：
 ![Demo](https://i.imgur.com/SJ0Szek.png)
 
-###challenge 1
+### challenge 1
 >要求：扩展proj4,增加syscall功能，即增加一用户态函数（可执行一特定系统调用：获得时钟计数值），当内核初始完毕后，可从内核态返回到用户态的函数，而用户态的函数又通过系统调用得到内核态的服务。
 
 所以这个拓展练习就是在让我们完成中断处理函数。
 
- int 指令进行下面一些步骤:（这些步骤来自xv6中文文档）            1. 从 IDT 中获得第 n 个描述符,n 就是 int 的参数。             2.检查 %cs 的域 CPL <= DPL,DPL 是描述符中记录的特权级。             3. 如果目标段选择符的 PL < CPL,就在 CPU 内部的寄存器中保存 %esp 和 %ss 的值。（这里的目标段选择符我不太清楚是什么，我觉得可能是相应的GDT表项里特区级或者就是这个中断描述符里的CS所记录的特权级）            
+ int 指令进行下面一些步骤:（这些步骤来自xv6中文文档）            
+ 1. 从 IDT 中获得第 n 个描述符,n 就是 int 的参数。             
+ 2.检查 %cs 的域 CPL <= DPL,DPL 是描述符中记录的特权级。             
+ 3. 如果目标段选择符的 PL < CPL,就在 CPU 内部的寄存器中保存 %esp 和 %ss 的值。（这里的目标段选择符我不太清楚是什么，我觉得可能是相应的GDT表项里特区级或者就是这个中断描述符里的CS所记录的特权级）            
  4.从一个任务段描述符中加载 %ss 和 %esp。（这里的任务段就是TSS，一般设定为每个CPU一个，且在固定的段表项）            
  5.将 %ss 压栈。            
  6.将 %esp 压栈。            
@@ -375,7 +378,7 @@ trap函数只是直接调用了trap_dispatch函数，而trap_dispatch函数实�
 
 至于从用户态转为内核态也是大同小异。坑人的地方就是，这次int指令的确把%ss和%esp压栈了，但是这回是iret指令没有把他们弹出，因为我们强行改为内核态，会让cpu认为没有发生特权级转换。于是，%esp的值就不对了（%ss的值是对的）。但是，解决办法很简单，因为%ebp的值是正确的，而执行int指令前，%ebp和%esp的值是一样的。因为，只要把%ebp的值传给%esp就会使栈顶位置正确归位，于是就顺利完成了调用。
 
-init.c中的switch_to_use：
+`init.c`中的`switch_to_use`：
 
 	static void
 	lab1_switch_to_user(void) {
@@ -390,7 +393,7 @@ init.c中的switch_to_use：
 	    );
 	}
 
-调用了T_SWITCH_TOU中断：
+调用了`T_SWITCH_TOU`中断：
 
 	case T_SWITCH_TOU:
         if (tf->tf_cs != USER_CS) {
@@ -406,7 +409,7 @@ init.c中的switch_to_use：
             *((uint32_t *)tf - 1) = (uint32_t)&switchktou;
         }
 
-init.c中的switch_to_kernel:
+`init.c`中的`switch_to_kernel`:
 	static void
 	lab1_switch_to_kernel(void) {
     //LAB1 CHALLENGE 1 :  TODO
@@ -420,7 +423,7 @@ init.c中的switch_to_kernel:
 	);
 }
 
-调用了T_SWITCH_TOK中断：
+调用了`T_SWITCH_TOK`中断：
 
 	case T_SWITCH_TOK:
     if (tf->tf_cs != KERNEL_CS) {
